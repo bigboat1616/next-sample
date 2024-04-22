@@ -1,0 +1,15 @@
+version: "3.3"
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    tty: true
+    volumes:
+      - ./frontend:/app
+    ports:
+      - 3000:3000
+    # command: sh -c "pnpm install && pnpm run dev"
+    # env_file:
+    #   - frontend/.env.local
