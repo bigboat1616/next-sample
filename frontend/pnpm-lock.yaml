@@ -16,6 +16,9 @@ dependencies:
     version: 18.2.0(react@18.2.0)
 
 devDependencies:
+  '@types/googlemaps':
+    specifier: 3.43.3
+    version: 3.43.3
   '@types/node':
     specifier: ^20
     version: 20.12.4
@@ -25,12 +28,21 @@ devDependencies:
   '@types/react-dom':
     specifier: ^18
     version: 18.2.24
+  autoprefixer:
+    specifier: ^10
+    version: 10.0.1
   eslint:
     specifier: ^8
     version: 8.57.0
   eslint-config-next:
     specifier: 14.1.0
     version: 14.1.0(eslint@8.57.0)(typescript@5.4.4)
+  postcss:
+    specifier: ^8
+    version: 8.4.1
+  tailwindcss:
+    specifier: ^3
+    version: 3.3.0
   typescript:
     specifier: ^5
     version: 5.4.4
