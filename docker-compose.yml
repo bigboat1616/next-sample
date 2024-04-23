@@ -7,7 +7,7 @@ services:
       dockerfile: docker/Dockerfile
     tty: true
     volumes:
-      - ./frontend:/app
+      - ./next-map-exp:/app
     ports:
       - 3000:3000
     # command: sh -c "pnpm install && pnpm run dev"
