@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@types/googlemaps": "^3.43.3",
+    "tailwindcss": "^3.4.3"
+  }
+}
