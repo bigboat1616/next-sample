@@ -1,8 +1,8 @@
 /* // src/styles/globals.css
 
 /* // Tailwind のベーススタイル */
-/* @tailwind base; */
+@tailwind base;
 /* // カスタムコンポーネントのスタイル */
-/* @tailwind components; */
+@tailwind components;
 /* // Tailwind のユーティリティクラス */
-/* @tailwind utilities; */ 
+@tailwind utilities; 
