@@ -4,12 +4,24 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/frontend/Dockerfile
     tty: true
     volumes:
-      - ./next-map-exp:/app
+      - ./frontend:/app
     ports:
       - 3000:3000
     # command: sh -c "pnpm install && pnpm run dev"
     # env_file:
     #   - frontend/.env.local
+
+# marumo追加分
+  backend:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile
+    ports:
+      - 5000:5000
+    tty: true
+    volumes: 
+      - ./backend:/app
