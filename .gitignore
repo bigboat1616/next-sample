@@ -4,6 +4,8 @@ out/
 migrations/
 .env
 .pnpm-store/
+__pycache__/
+test/
 
 # next
 # ---------------------------------------------
