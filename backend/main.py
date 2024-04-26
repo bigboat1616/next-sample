@@ -30,27 +30,16 @@ class Coordinate(BaseModel):
     x: float  # int から float に変更
     y: float  # int から float に変更
     
-@app.get("/coordinates/{name}")
-async def get_coordinates(name: str):
+# 座標と混雑度をまとめて取得するエンドポイント
+@app.get("/location/{name}")
+async def get_location_and_congestion(name: str):
     if name in DATABASE:
-        return DATABASE[name]
+        coordinates = DATABASE[name]
+        congestion = generate_congestion()  # 混雑度を取得する処理
+        return {"coordinates": coordinates, "congestion": congestion}
     else:
         return {"error": "Name not found"}
-
 
 # 混雑度をランダムで生成（ココをMLの処理に！！）
 def generate_congestion():
     return random.randint(0, 100)
-
-
-# 店舗の混雑度を送信
-@app.get("/congestion/{name}")
-async def get_congestion(name: str):
-    if name in DATABASE:
-        # 座標情報を取得
-        coordinates = DATABASE[name]
-        # ここで座標情報を使用して混雑度を計算する処理を実装する
-        congestion = generate_congestion()
-        return {"congestion": congestion}
-    else:
-        return {"error": "Name not found"}

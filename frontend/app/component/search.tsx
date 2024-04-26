@@ -18,6 +18,7 @@ function GeocodeComponent() {
         id: 'google-map-script',
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_KEY!
     });
+    
     const [address, setAddress] = useState('');
     const [location, setLocation] = useState<MarkerPoint | null>(null);
     const handleInput = (e : React.ChangeEvent<HTMLInputElement>) => {
@@ -38,37 +39,12 @@ function GeocodeComponent() {
           });
     };
     const handleShop = async () => {
-      const response = await fetch(`http://localhost:5000/coordinates/${address}`);
+      const response = await fetch(`http://localhost:5000/location/${address}`);
       const data = await response.json();
-      console.log("Coordinates data:", data); // データのログを出力
-      if ("error" in data) {
-          alert('Location not found');
-      } else {
-          const { lat, lng } = data;
-          const congestionResponse = await fetch(`http://localhost:5000/congestion/${address}`);
-          const congestionData = await congestionResponse.json();
-          console.log("Congestion data:", congestionData); // 混雑度データのログを出力
-          if ("error" in congestionData) {
-              alert('Congestion data not available');
-          } else {
-              // ポップアップを表示する InfoWindowF コンポーネントを動的に生成
-              const infoWindowContent = (
-                  <>
-                      <p>Congestion: {congestionData.congestion}%</p>
-                  </>
-              );
-              const infoWindowPosition = { lat, lng };
-              setInfoWindow({
-                  position: infoWindowPosition,
-                  content: infoWindowContent
-              });
-          }
-      }
+      console.log("Coordinates and Congection data:", data); // データのログを出力
     };
     
-  
-  // ポップアップ表示用の InfoWindowF コンポーネントを追加
-  const [infoWindow, setInfoWindow] = useState<{ position: { lat: number; lng: number }; content: JSX.Element } | null>(null);
+
     return (
         <div>
             {isLoaded ? (
