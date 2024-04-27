@@ -24,6 +24,7 @@ function GeocodeComponent() {
     const [address, setAddress] = useState('');
     const [location, setLocation] = useState<MarkerPoint | null>(null);
     const [markers, setMarkers] = useState<MarkerPoint>(center);
+    const [coordinatesList, setCoordinatesList] = useState<{lat: number; lng: number }[]>([]);
     const mapRef = React.useRef<google.maps.Map | null>(null);
     const onLoad = React.useCallback((map: google.maps.Map) => {mapRef.current = map;}, []);
     const options = {
@@ -83,10 +84,30 @@ function GeocodeComponent() {
        */
       function callback(result: any, status: any) {
         var service = new google.maps.places.PlacesService(Map);
+        let pointLists = [];
+        // バックエンドに座標を送信
+        const sendCoordinatesToBackend = async () => {
+          try {
+            const response = await fetch('http://localhost:5000/save_coordinates', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(coordinatesList)
+            });
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            console.log('Coordinates sent successfully');
+          } catch (error) {
+            console.error('Failed to send coordinates to backend', error);
+          }
+        };
+       // バックエンドに座標を送信↑
         if (status == google.maps.places.PlacesServiceStatus.OK) {
           for (var i = 0; i < result.length; i++) {
             createMarker(result[i]);
-            console.log('place_id:', result[i].place_id)
+            pointLists.push({lat: result[i].geometry.location.lat(), lng: result[i].geometry.location.lng()});
             var request2 = {
                       placeId: result[i].place_id,
                       fields: ['name','reviews']
@@ -94,6 +115,9 @@ function GeocodeComponent() {
             service.getDetails(request2, callback2);
           }
         }
+        console.log('place_id:', pointLists);
+        setCoordinatesList(pointLists);
+        sendCoordinatesToBackend();
         return;
       }
       function callback2(result: any, status: any) {
@@ -102,10 +126,10 @@ function GeocodeComponent() {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
             for (var i = 0; i < result.reviews.length; i++) {
                 average += result.reviews[i].rating;
-                console.log('details:', result.reviews[i].rating, result.reviews[i].text);
+                // console.log('details:', result.reviews[i].rating, result.reviews[i].text);
             }
             average = average / result.reviews.length;
-            console.log('average:', average);
+            // console.log('average:', average);
         }
         return;
         }
