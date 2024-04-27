@@ -49,6 +49,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import csv
 import random
+from typing import List
+
 
 app = FastAPI()
 
@@ -61,28 +63,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class Coordinate(BaseModel):
+    lat: float
+    lng: float
+
 class Coordinates(BaseModel):
-    name: str
-    coordinates: dict
+    coordinates: List[Coordinate]
+
 
 @app.post("/save_coordinates")
-def save_coordinates(coordinates_list: list[Coordinates]):
+def save_coordinates(coordinates_list: List[dict]):
     # 座標データをCSVに書き込む
     with open('coordinates.csv', 'w', newline='') as csvfile:
-        fieldnames = ['name', 'latitude', 'longitude']
+        fieldnames = ['latitude', 'longitude']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
         writer.writeheader()
         for coord in coordinates_list:
-            writer.writerow({'name': coord.name, 'latitude': coord.coordinates['latitude'], 'longitude': coord.coordinates['longitude']})
+            writer.writerow({'latitude': coord['lat'], 'longitude': coord['lng']})
 
-        # ランダムな混雑度を座標ごとに生成
-        result = []
-        for coord in coordinates_list:
-            congestion = generate_congestion()
-            result.append({"name": coord.name, "coordinates": coord.coordinates, "congestion": congestion})
+    # ランダムな混雑度を座標ごとに生成
+    congestions = [generate_congestion() for _ in coordinates_list]
 
-    return {"message": "Coordinates saved successfully"}
+    # 位置情報と混雑度の組み合わせをリストとして返す
+    return [{"coordinates": coord, "congestion": congestion} for coord, congestion in zip(coordinates_list, congestions)]
 
 # 混雑度をランダムで生成（ここでMLからの出力を受け取る）
 def generate_congestion():
