@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GoogleMap, Marker, useJsApiLoader} from '@react-google-maps/api';
-// import getNearFood from './getNearFood';
+
 let Map: google.maps.Map;
 const googleMapsLibraries : Array<"places"> = ['places'];
 let place_ids: string[] = [];
