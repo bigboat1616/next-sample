@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from '@react-google-maps/api';
-import getNearFood from './getNearFood';
+import { GoogleMap, Marker, useJsApiLoader} from '@react-google-maps/api';
+// import getNearFood from './getNearFood';
+let Map: google.maps.Map;
+let place_ids: string[] = [];
 const containerStyle = {
   width: '1200px',
   height: '800px'
@@ -16,11 +18,18 @@ const center : MarkerPoint = {
 function GeocodeComponent() {
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
-        googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_KEY!
+        googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_KEY!,
+        libraries : ['places'],
     });
-    
     const [address, setAddress] = useState('');
     const [location, setLocation] = useState<MarkerPoint | null>(null);
+    const [markers, setMarkers] = useState<MarkerPoint>(center);
+    const mapRef = React.useRef<google.maps.Map | null>(null);
+    const onLoad = React.useCallback((map: google.maps.Map) => {mapRef.current = map;}, []);
+    const options = {
+        disableDefaultUI: true,
+        zoomControl: true,
+      };
     const handleInput = (e : React.ChangeEvent<HTMLInputElement>) => {
       setAddress(e.target.value);
     };
@@ -28,23 +37,101 @@ function GeocodeComponent() {
         const geocoder = new window.google.maps.Geocoder();
         geocoder.geocode({ address: address }, (results, status) => {
             if (status === 'OK' && results && results.length > 0) {
-                setLocation({
+                const newLocation=({
                     lat: results[0].geometry.location.lat(), // 関数を呼び出して数値を取得
                     lng: results[0].geometry.location.lng()  // 同上
-                })
-                ;
-            } else {
-              alert('Geocode was not successful for the following reason: ' + status);
+                });
+                setLocation(newLocation);
+                getNearFood(newLocation.lat, newLocation.lng);
             }
+            });
+    };
+    // 近隣の飲食店を検索
+    function getNearFood(lat: Number, lng: Number) {
+        try {
+          if (document.getElementById('map') == null || typeof document.getElementById('map') == null) {
+            return;
+          }
+          var pyrmont = new google.maps.LatLng(
+            parseFloat(lat.toString()),
+            parseFloat(lng.toString()),
+          );
+          Map = new google.maps.Map(document.getElementById('map')!, {
+            center: pyrmont,
+            zoom: 17
           });
-    };
-    const handleShop = async () => {
-      const response = await fetch(`http://localhost:5000/location/${address}`);
-      const data = await response.json();
-      console.log("Coordinates and Congection data:", data); // データのログを出力
-    };
-    
-
+          var request = {
+            location: pyrmont,
+            radius: 300,
+            type: "restaurant",
+            keyword: '飲食店', // 検索地点の付近を`keyword`を使って検索する
+          };
+          if (google && google.maps && google.maps.places && Map instanceof google.maps.Map) {
+            var service = new google.maps.places.PlacesService(Map);
+            service.nearbySearch(request, callback);
+        } else {
+            console.error('Google Maps Places API is not loaded yet or Map is not a google.maps.Map instance');
+        }
+        } catch (error) {
+          alert('検索処理でエラーが発生しました！');
+          throw error;
+        }
+      }
+      /**
+       * `nearbySearch`のコールバック処理
+       *
+       */
+      function callback(result: any, status: any) {
+        var service = new google.maps.places.PlacesService(Map);
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+          for (var i = 0; i < result.length; i++) {
+            createMarker(result[i]);
+            console.log('place_id:', result[i].place_id)
+            var request2 = {
+                      placeId: result[i].place_id,
+                      fields: ['name','reviews']
+                    };
+            service.getDetails(request2, callback2);
+          }
+        }
+        return;
+      }
+      function callback2(result: any, status: any) {
+        let average = 0;
+        console.log('details:', result);
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+            for (var i = 0; i < result.reviews.length; i++) {
+                average += result.reviews[i].rating;
+                console.log('details:', result.reviews[i].rating, result.reviews[i].text);
+            }
+            average = average / result.reviews.length;
+            console.log('average:', average);
+        }
+        return;
+        }
+        // /**place_idを用いて詳細情報を取得 */
+        // function getDetails(place_ids: string[]) {
+        //     var service = new google.maps.places.PlacesService(Map);
+        //     var request = {
+        //       placeId: place_ids[0],
+        //       fields: ['name','reviews']
+        //     };
+        // }
+      /**
+       * 検索結果の箇所にマーカーを設定する
+       *
+       */
+      function createMarker(place: google.maps.places.PlaceResult) {
+        if (!place.geometry || !place.geometry.location) return;
+        // お店情報マーカー
+        const marker = new google.maps.Marker({
+          map: Map,
+          position: place.geometry.location,
+          title: place.name,
+          label: place.name?.substr(0, 1),
+          optimized: false,
+        });
+    }
     return (
         <div>
             {isLoaded ? (
@@ -64,16 +151,16 @@ function GeocodeComponent() {
                 onClick={handleSearch}>
                     Search
                 </button>
-                <button
-                onClick={handleShop}>
-                    congestion
-                </button>
                 <GoogleMap
+                  id = 'map'
                   mapContainerStyle={containerStyle}
                   center={location || center}
                   zoom={16}
+                  onLoad={onLoad}
+                  options={options}
                 >
-                  {location && <Marker position={location} />}
+                <Marker position = {markers}/>
+                  {/* {location && <Marker position={location} />} */}
                   {/* 上は検索した一点のみ表示，下は検索した周辺の飲食店を一括表示 */}
                   {/* {markers.map((marker, index) => (
                             <Marker key={index} position={marker} />
@@ -87,109 +174,3 @@ function GeocodeComponent() {
     );
 }
 export default GeocodeComponent;
-
-// 'use client'
-// import React from 'react'
-// import { GoogleMap, InfoWindowF, useJsApiLoader } from '@react-google-maps/api'
-// import { InterfaceMapStyle } from '@/lib/MapStyles'
-
-// const containerStyle = {
-//     width: '1200px',
-//     height: '800px'
-// }
-
-// const center = {
-//     lat: 36,
-//     lng: 140
-// }
-
-// const Map = React.memo(() => {
-//     const { isLoaded } = useJsApiLoader({
-//         id: 'google-map-script',
-//         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_KEY!
-//     })
-
-//     const [map, setMap] = React.useState(null)
-
-//     const onLoad = React.useCallback(function callback(map: any) {
-//         // This is just an example of getting and using the map instance!!! don't just blindly copy!
-//         const bounds = new window.google.maps.LatLngBounds(center)
-//         map.fitBounds(bounds)
-
-//         setMap(map)
-//     }, [])
-
-//     const onUnmount = React.useCallback(function callback(map: any) {
-//         setMap(null)
-//     }, [])
-
-//     const mapOptions = {
-//         styles: InterfaceMapStyle
-//     }
-
-//     return isLoaded ? (
-//         <GoogleMap
-//             mapContainerStyle={containerStyle}
-//             options={mapOptions}
-//             center={center}
-//             zoom={10}
-//             onLoad={onLoad}
-//             onUnmount={onUnmount}
-//         >
-//             <InfoWindowF position={center}>
-//                 <>
-//                     <p>川本･計良研究室</p>
-//                     <img
-//                         width="100px"
-//                         src="https://www.kawa-lab.org/wordpress/wp-content/uploads/2016/08/logo.png"
-//                         alt=""
-//                     />
-//                 </>
-//             </InfoWindowF>
-//             <InfoWindowF position={{ lat: 35.62630103837421, lng: 140.1159142044246 }}>
-//                 <>
-//                     <p>龍之介</p>
-//                     <p>5分待ち</p>
-//                 </>
-//             </InfoWindowF>
-//             <InfoWindowF position={{ lat: 35.62406779026565, lng: 140.10121058980235 }}>
-//                 <>
-//                     <p>はん歩</p>
-//                     <p>5分待ち</p>
-//                 </>
-//             </InfoWindowF>
-//             <InfoWindowF position={{ lat: 35.62377319704928, lng: 140.10337833307406 }}>
-//                 <>
-//                     <p>北京亭</p>
-//                     <p>15分待ち</p>
-//                 </>
-//             </InfoWindowF>
-//             <InfoWindowF position={{ lat: 35.62215870364333, lng: 140.10323825145724 }}>
-//                 <>
-//                     <p>SAWASUKE</p>
-//                     <p>30分待ち</p>
-//                 </>
-//             </InfoWindowF>
-//             <InfoWindowF position={{ lat: 35.62304983241853, lng: 140.1073376318148 }}>
-//                 <>
-//                     <p>幸せのれんげ</p>
-//                     <p>0分待ち</p>
-//                 </>
-//             </InfoWindowF>
-
-//         </GoogleMap>
-//     ) : (
-//         <></>
-//     )
-// })
-
-// const Page = () => {
-//     return (
-//         <div>
-//             <h1>Google Map from Next App</h1>
-//             <Map />
-//         </div>
-//     )
-// }
-
-// export default Page

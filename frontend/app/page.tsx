@@ -68,7 +68,7 @@ import GeocodeComponent from './component/search';
 const Page = () => {
     return (
         <div>
-            <h1>Food Map</h1>
+            <h1>WeitLess</h1>
             <GeocodeComponent/>
             {/* <Map /> */}
         </div>
