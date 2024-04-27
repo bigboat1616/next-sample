@@ -21,7 +21,6 @@ class Coordinate(BaseModel):
     lat: float
     lng: float
 
-
 @app.post("/save_coordinates")
 def save_coordinates(coordinatesList: List[Coordinate]):
     # 座標データをCSVに書き込む
