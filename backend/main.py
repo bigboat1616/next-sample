@@ -35,7 +35,9 @@ def save_coordinates(coordinatesList: List[Coordinate]):
             writer.writerow({'latitude': coord.lat, 'longitude': coord.lng})
 
     # ランダムな混雑度を座標ごとに生成
+
     congestions = [generate_congestion(coord) for coord in coordinatesList]
+
     # 位置情報と混雑度の組み合わせを返す
     return [{"location": coord, "rgb": congestion} for coord, congestion in zip(coordinatesList, congestions)]
 

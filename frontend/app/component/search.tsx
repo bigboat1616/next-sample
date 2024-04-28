@@ -104,7 +104,6 @@ function GeocodeComponent() {
       function sendBackend(pointLists: MarkerPoint[]) {
         // バックエンドに座標を送信
         type RGB = {r: number, g: number, b: number};
-        // console.log("coordinatesList:", coordinatesList);
         const sendCoordinatesToBackend = async () => {
           try {
             const response = await fetch('http://localhost:5000/save_coordinates', {
@@ -125,7 +124,9 @@ function GeocodeComponent() {
             console.log('Coordinates sent successfully');
             // バックエンドから受け取ったRGB値でマーカーを更新
               for (let i = 0; i < data.length; i++) {
+
                 createMarker(data[i].location, data[i].rgb.r, data[i].rgb.g, data[i].rgb.b);
+
               }
           } catch (error) {
             console.error('Failed to send coordinates to backend', error);
