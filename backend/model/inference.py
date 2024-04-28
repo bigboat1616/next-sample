@@ -2,11 +2,13 @@ import lightgbm as lgb
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import numpy as np
+import pickle
 
 # 推論クラス
 class Inference:
     def __init__(self, model_path, linked_file_path):
-        self.bst = lgb.Booster(model_file=model_path)
+        with open(model_path, 'rb') as f:
+            self.bst = pickle.load(f)
         self.df = pd.read_csv(linked_file_path)
 
     def __find_csv_name(self, latitude, longitude):
@@ -54,17 +56,11 @@ class Inference:
         rgb = {}
 
         if y_pred == 0:
-            rgb["r"] = 0
-            rgb["g"] = 114
-            rgb["b"] = 255
+            rgb = {"r": 0, "g": 255, "b": 0}
         elif y_pred == 1:
-            rgb["r"] = 255
-            rgb["g"] = 255
-            rgb["b"] = 0
+            rgb = {"r": 0, "g": 0, "b": 255}
         elif y_pred == 2:
-            rgb["r"] = 255
-            rgb["g"] = 0
-            rgb["b"] = 0
+            rgb = {"r": 255, "g": 0, "b": 0}
         else:
             rgb["r"] = 160
             rgb["g"] = 160

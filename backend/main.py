@@ -44,7 +44,7 @@ def save_coordinates(coordinatesList: List[Coordinate]):
 # 混雑度をランダムで生成（ここでMLからの出力を受け取る）
 def generate_congestion(coord: Coordinate):
     # モデルとデータのパス
-    model_path = 'model/lgbm_model.txt'
+    model_path = 'model/model.pkl'
     linked_file_path = 'csv/link_coordinates_to_csv.csv'
     inference = Inference(model_path, linked_file_path)
 
