@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import { GoogleMap, Marker, useJsApiLoader} from '@react-google-maps/api';
+import "../globals.css";
+import Image from 'next/image';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
 let Map: google.maps.Map;
 const googleMapsLibraries : Array<"places"> = ['places'];
@@ -84,17 +88,10 @@ function GeocodeComponent() {
        *
        */
       function callback(result: any, status: any) {
-        // var service = new google.maps.places.PlacesService(Map);
         let pointLists = [];
         if (status == google.maps.places.PlacesServiceStatus.OK) {
           for (var i = 0; i < result.length; i++) {
-            // createMarker(result[i], 0, 255, 0);
             pointLists.push({lat: result[i].geometry.location.lat(), lng: result[i].geometry.location.lng()});
-            // var request2 = {
-            //           placeId: result[i].place_id,
-            //           fields: ['name','reviews']
-            //         };
-            // service.getDetails(request2, callback2);
           }
         }
         console.log('pointLists:', pointLists);
@@ -138,27 +135,6 @@ function GeocodeComponent() {
        // バックエンドに座標を送信↑
         return;
       }
-      // function callback2(result: any, status: any) {
-      //   let average = 0;
-      //   console.log('details:', result);
-      //   if (status == google.maps.places.PlacesServiceStatus.OK) {
-      //       for (var i = 0; i < result.reviews.length; i++) {
-      //           average += result.reviews[i].rating;
-      //           // console.log('details:', result.reviews[i].rating, result.reviews[i].text);
-      //       }
-      //       average = average / result.reviews.length;
-      //       // console.log('average:', average);
-      //   }
-      //   return;
-      //   }
-        // /**place_idを用いて詳細情報を取得 */
-        // function getDetails(place_ids: string[]) {
-        //     var service = new google.maps.places.PlacesService(Map);
-        //     var request = {
-        //       placeId: place_ids[0],
-        //       fields: ['name','reviews']
-        //     };
-        // }
       /**
        * 検索結果の箇所にマーカーを設定する
        *
@@ -178,59 +154,37 @@ function GeocodeComponent() {
         const markers = new google.maps.Marker({
             map: Map,
             position: place,
-            // position: place.geometry.location,
-            // title: place.name,
-            // label: place.name?.substr(0, 1),
             optimized: false,
             icon: svgMarker,  // カスタムアイコンを使用
         });
     }
-    //   function createMarker(place: google.maps.places.PlaceResult) {
-    //     if (!place.geometry || !place.geometry.location) return;
-    //     // お店情報マーカー
-    //     const markers = new google.maps.Marker({
-    //       map: Map,
-    //       position: place.geometry.location,
-    //       title: place.name,
-    //       label: place.name?.substr(0, 1),
-    //       optimized: false,
-    //     });
-    // }
     return (
         <div>
             {isLoaded ? (
-              <>
-                <input type="text" value={address} onChange={handleInput}
-                        style={{
-                            width: '400px', // 検索ボックスの幅を調整
-                            height: '40px', // 高さを設定
-                            fontSize: '20px', // フォントサイズを大きくする
-                            padding: '5px', // パディングを追加
-                            margin: '10px 0', // 上下のマージンを設定
-                            border: '1px solid #ccc', // 境界線のスタイルを設定
-                            borderRadius: '5px', // 境界線の角を丸くする
-                }}
-                />
-                <button
-                onClick={handleSearch}>
-                    Search
-                </button>
-                <GoogleMap
-                  id = 'map'
-                  mapContainerStyle={containerStyle}
-                  center={location || center}
-                  zoom={16}
-                  onLoad={onLoad}
-                  options={options}
-                >
-                {/* <Marker position = {markers}/> */}
-                  {/* {location && <Marker position={location} />} */}
-                  {/* 上は検索した一点のみ表示，下は検索した周辺の飲食店を一括表示 */}
-                  {/* {markers.map((marker, index) => (
-                            <Marker key={index} position={marker} />
-                        ))} */}
-                </GoogleMap>
-              </>
+              <div className='wrapper'>
+                <div className="logo_search">
+                  <div className='logo-container'>
+                    <Image src="/image/title_logo.png" alt="logo" width={500} height={100} />
+                  </div>
+                  <div className='search_wrap'>
+                    <input type="text" value={address} onChange={handleInput} className='search-box'/>
+                    <button onClick={handleSearch} className='button'>
+                      <FontAwesomeIcon icon={faSearch} /> {/* アイコンを表示 */}
+                    </button>
+                  </div>
+                </div>
+                <div className='google_map'>
+                  <GoogleMap
+                    id = 'map'
+                    mapContainerStyle={containerStyle}
+                    center={location || center}
+                    zoom={16}
+                    onLoad={onLoad}
+                    options={options}
+                  >
+                  </GoogleMap>
+                </div>
+              </div>
             ) : (
               <div>Loading...</div>
             )}

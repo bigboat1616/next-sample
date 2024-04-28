@@ -28,7 +28,7 @@ class Inference:
 
     def __preprocess(self, dataset):
         X = dataset.drop('target', axis=1).astype(np.float32)
-        X_test = X.iloc[5]
+        X_test = X.iloc[2]
         return X_test
 
     def __inference(self, input_data):
@@ -56,14 +56,12 @@ class Inference:
         rgb = {}
 
         if y_pred == 0:
-            rgb = {"r": 0, "g": 255, "b": 0}
+            rgb = {"r": 96, "g": 169, "b": 23}
         elif y_pred == 1:
-            rgb = {"r": 0, "g": 0, "b": 255}
+            rgb = {"r": 255, "g": 185, "b": 0}
         elif y_pred == 2:
-            rgb = {"r": 255, "g": 0, "b": 0}
+            rgb = {"r": 229, "g": 20, "b": 0}
         else:
-            rgb["r"] = 160
-            rgb["g"] = 160
-            rgb["b"] = 160
+            rgb = {"r": 160, "g": 160, "b": 160}
         return rgb
 
