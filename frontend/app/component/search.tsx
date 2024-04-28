@@ -124,7 +124,9 @@ function GeocodeComponent() {
             console.log('Coordinates sent successfully');
             // バックエンドから受け取ったRGB値でマーカーを更新
               for (let i = 0; i < data.length; i++) {
-                createMarker(data[i].location, 0, data[i].rgb , 0);
+
+                createMarker(data[i].location, data[i].rgb.r, data[i].rgb.g, data[i].rgb.b);
+
               }
           } catch (error) {
             console.error('Failed to send coordinates to backend', error);

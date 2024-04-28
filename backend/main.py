@@ -5,6 +5,8 @@ import csv
 import random
 from typing import List
 
+# local
+from model.inference import Inference
 
 app = FastAPI()
 
@@ -33,14 +35,22 @@ def save_coordinates(coordinatesList: List[Coordinate]):
             writer.writerow({'latitude': coord.lat, 'longitude': coord.lng})
 
     # ランダムな混雑度を座標ごとに生成
-    congestions = [generate_congestion() for _ in coordinatesList]
+
+    congestions = [generate_congestion(coord) for coord in coordinatesList]
 
     # 位置情報と混雑度の組み合わせを返す
     return [{"location": coord, "rgb": congestion} for coord, congestion in zip(coordinatesList, congestions)]
 
 # 混雑度をランダムで生成（ここでMLからの出力を受け取る）
-def generate_congestion():
-    return random.randint(0, 100)
+def generate_congestion(coord: Coordinate):
+    # モデルとデータのパス
+    model_path = 'model/lgbm_model.txt'
+    linked_file_path = 'csv/link_coordinates_to_csv.csv'
+    inference = Inference(model_path, linked_file_path)
+
+    # RGBの生成
+    congestion = inference.get_rgb(coord.lat, coord.lng)
+    return congestion
 
 if __name__ == '__main__':
     import uvicorn
