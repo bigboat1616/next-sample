@@ -1,7 +1,7 @@
 
 ![waitless](https://github.com/bigboat1616/next-sample/assets/86867208/7b62e8a1-0e9b-4714-91a2-8860b14b5cad)
 
-### TL;DR![Uploading waitless.png…]()
+### TL;DR
 
 
 　近辺の飲食店の混雑度を可視化するマップアプリ
