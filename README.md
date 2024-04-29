@@ -22,6 +22,9 @@
 - Google Maps API
 - vercel
 
+### アーキテクチャ
+![image](https://github.com/bigboat1616/next-sample/assets/86867208/1459c188-7d16-4c8d-9277-9caf7de4702c)
+
 
 ### 開発メンバー
 - 上山 渉
