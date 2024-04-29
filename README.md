@@ -13,13 +13,18 @@
 - LightGBLを用いた自作の混雑度予測モデル
 
 ### 使用技術
-- JavaScript
-- CSS
+フロントエンド
 - Next.js
 - TypeScript
-- FastAPI
-- Docker
+- CSS
 - Google Maps API
+
+バックエンド
+- Python
+- FastAPI
+
+環境
+- Docker
 - vercel
 
 ### アーキテクチャ
