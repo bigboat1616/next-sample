@@ -37,7 +37,7 @@
 
 ```
 
-### デモ動画
+### DEMO
 ![waitless_demo](https://github.com/bigboat1616/next-sample/assets/86867208/83a97df7-d04a-4ba3-a2fb-edcd24fdf152)
 
 
